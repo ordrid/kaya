@@ -1,4 +1,5 @@
-open System
+module Kaya
+
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
@@ -11,13 +12,14 @@ let configureApp (app: IApplicationBuilder) = app.UseGiraffe webApp
 
 let configureServices (services: IServiceCollection) = services.AddGiraffe() |> ignore
 
+let configure (webHostBuilder: IWebHostBuilder) =
+    webHostBuilder.Configure(configureApp).ConfigureServices(configureServices)
+
 [<EntryPoint>]
 let main _ =
     Host
         .CreateDefaultBuilder()
-        .ConfigureWebHostDefaults(fun webHostBuilder ->
-            webHostBuilder.Configure(configureApp).ConfigureServices(configureServices)
-            |> ignore)
+        .ConfigureWebHostDefaults(configure >> ignore)
         .Build()
         .Run()
 
