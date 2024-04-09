@@ -1,15 +1,24 @@
 open System
 open Microsoft.AspNetCore.Builder
+open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
+open Microsoft.Extensions.DependencyInjection
+open Giraffe
+
+let webApp = choose [ route "/" >=> text "Hello World from Giraffe!" ]
+
+let configureApp (app: IApplicationBuilder) = app.UseGiraffe webApp
+
+let configureServices (services: IServiceCollection) = services.AddGiraffe() |> ignore
 
 [<EntryPoint>]
-let main args =
-    let builder = WebApplication.CreateBuilder(args)
-    let app = builder.Build()
+let main _ =
+    Host
+        .CreateDefaultBuilder()
+        .ConfigureWebHostDefaults(fun webHostBuilder ->
+            webHostBuilder.Configure(configureApp).ConfigureServices(configureServices)
+            |> ignore)
+        .Build()
+        .Run()
 
-    app.MapGet("/", Func<string>(fun () -> "Hello World!")) |> ignore
-
-    app.Run()
-
-    0 // Exit code
-
+    0
